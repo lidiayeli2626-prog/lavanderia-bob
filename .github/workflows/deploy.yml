@@ -34,25 +34,25 @@ jobs:
 
       - name: Build static files
         run: bun run build
-        continue-on-error: true
 
-      - name: Fallback to dist folder
+      - name: Prepare production artifact
         run: |
-          if [ ! -d ".output/public" ]; then
-            mkdir -p .output/public
-            if [ -d "dist" ]; then
-              cp -r dist/* .output/public/
-            elif [ -d "build" ]; then
-              cp -r build/* .output/public/
-            else
-              cp src/index.html .output/public/index.html || echo "No index found"
-            fi
+          mkdir -p target_dir
+          if [ -d ".output/public" ]; then
+            cp -r .output/public/* target_dir/
+          elif [ -d "dist" ]; then
+            cp -r dist/* target_dir/
+          elif [ -d "build" ]; then
+            cp -r build/* target_dir/
+          else
+            cp src/index.html target_dir/index.html || cp index.html target_dir/index.html
           fi
+          cp target_dir/index.html target_dir/404.html || echo "No index to duplicate"
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: .output/public
+          path: target_dir
 
       - name: Deploy to GitHub Pages
         id: deployment
