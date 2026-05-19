@@ -33,14 +33,14 @@ jobs:
         run: bun install
 
       - name: Build static site
-        run: bun run build --preset=github-pages
+        run: bun run build
         env:
           VITE_BASE_URL: /lavanderia-bob/
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: .output/public
+          path: dist
 
       - name: Deploy to GitHub Pages
         id: deployment
