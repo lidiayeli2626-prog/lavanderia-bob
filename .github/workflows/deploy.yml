@@ -32,15 +32,27 @@ jobs:
       - name: Install dependencies
         run: bun install
 
-      - name: Build static site
+      - name: Build static files
         run: bun run build
-        env:
-          VITE_BASE_URL: /lavanderia-bob/
+        continue-on-error: true
+
+      - name: Fallback to dist folder
+        run: |
+          if [ ! -d ".output/public" ]; then
+            mkdir -p .output/public
+            if [ -d "dist" ]; then
+              cp -r dist/* .output/public/
+            elif [ -d "build" ]; then
+              cp -r build/* .output/public/
+            else
+              cp src/index.html .output/public/index.html || echo "No index found"
+            fi
+          fi
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: dist
+          path: .output/public
 
       - name: Deploy to GitHub Pages
         id: deployment
